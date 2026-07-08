@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirmar recibido</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#f6f8fb;display:flex;align-items:center;justify-content:center;height:100vh;margin:0}
+  .card{background:#fff;padding:40px;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,.08);text-align:center;max-width:420px}
+  h2{color:#1F4E78;margin-top:0}
+  button{background:#1F4E78;color:#fff;border:none;padding:13px 36px;border-radius:6px;font-size:15px;font-weight:bold;cursor:pointer}
+  button:disabled{background:#9bb3cc;cursor:default}
+  .msg{margin-top:18px;font-size:14px;color:#2d2d2d}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>Confirmación de recibido</h2>
+  <p>Haz clic para confirmar que recibiste la notificación.</p>
+  <button id="btn" onclick="confirmar()">Confirmar recibido</button>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  const WEBHOOK = 'https://default09532963612149d794ca0baaa62a31.16.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/383308da1a274de3b4269815a3f168ed/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-vusJOiFaQkOP0efy3aeeStmgas6J-siOgN8Mu6aIVc';
+
+  async function confirmar(){
+    const btn = document.getElementById('btn');
+    const msg = document.getElementById('msg');
+    if(!token){ msg.textContent = 'Enlace inválido: falta el identificador.'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    try{
+      const r = await fetch(WEBHOOK + '&token=' + encodeURIComponent(token), { method:'POST' });
+      if(r.ok){ msg.textContent = '✓ Confirmación registrada. Puedes cerrar esta ventana.'; btn.textContent = 'Confirmado'; }
+      else { msg.textContent = 'Error al registrar (código ' + r.status + '). Intenta de nuevo.'; btn.disabled = false; btn.textContent = 'Confirmar recibido'; }
+    }catch(e){ msg.textContent = 'No se pudo conectar. Intenta de nuevo.'; btn.disabled = false; btn.textContent = 'Confirmar recibido'; }
+  }
+</script>
+</body>
+</html>
